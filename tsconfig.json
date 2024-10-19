@@ -30,7 +30,12 @@
 
     "outDir": "dist",
     "rootDir": "src",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@handlers": ["src/handlers/*"],
+      "@services": ["src/services/*"]
+    }
   },
   "exclude": [
     "dist",
