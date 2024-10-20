@@ -4,7 +4,7 @@
   "scripts": {
     "build": "webpack",
     "start:dev": "cross-env NODE_ENV=development nodemon -r tsconfig-paths/register src/main.ts",
-    "start:prod": "webpack && node dist/bundle.js",
+    "start:prod": "webpack && node dist/main.js",
     "lint": "eslint --ext .ts .",
     "format": "prettier \"./**\" --write --ignore-unknown",
     "format:check": "prettier \"./**\" --ignore-unknown --check",

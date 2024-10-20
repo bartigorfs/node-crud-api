@@ -7,7 +7,10 @@ export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
 export default {
-  entry: './src/main.ts',
+  entry: {
+    main: './src/main.ts',
+    server: './src/server.ts',
+  },
   target: 'node22',
   mode: 'production',
   externals: [nodeExternals()],
@@ -30,7 +33,7 @@ export default {
     },
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve('dist'),
   },
 };

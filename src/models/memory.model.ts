@@ -19,7 +19,7 @@ export interface IUserStorage {
 }
 
 export interface IBalancerDataStorage {
-  registerNode(id: number): void;
+  registerNode(id: number): Balancer | undefined
 
   getNodesASC(): Balancer[];
 
