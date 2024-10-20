@@ -30,6 +30,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-tsdoc": "^0.2.14",
+    "expect-type": "^1.1.0",
     "jest": "^27.5.1",
     "node-loader": "^2.0.0",
     "nodemon": "^2.0.15",

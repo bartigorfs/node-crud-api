@@ -2,11 +2,12 @@ import {v4 as uuidv4} from 'uuid';
 import {BaseUser, UpdateBaseUser, User} from "@/models/user.model";
 import {MemInvalidArgs, MemNotFound} from "@/models/memory.model";
 
-class Memory {
+export class Memory {
   static #mem: Memory;
   private _users: User[] = [];
 
-  private constructor() { }
+  private constructor() {
+  }
 
   public static get instance(): Memory {
     if (!Memory.#mem) {
@@ -19,24 +20,20 @@ class Memory {
   public addUser(user: BaseUser): User {
     if (!user) throw new MemInvalidArgs();
 
-    if (!Memory.#mem) throw new MemNotFound();
-
     const newUser: User = {
       id: uuidv4(),
       ...user,
     };
 
     this._users.push(newUser);
-console.log(this._users);
     return newUser;
   }
 
   public getAllUsers(): User[] {
-    if (this._users && this._users.length > 0) {
-      return this._users;
-    } else {
+    if (!this._users || this._users.length <= 0)
       throw new MemNotFound();
-    }
+
+    return this._users;
   }
 
   public getUserById(userId: string): User {
@@ -56,7 +53,7 @@ console.log(this._users);
   public deleteUser(userId: string): boolean {
     if (!userId) throw new MemInvalidArgs();
 
-    if (!Memory.#mem || !this._users) throw new MemNotFound();
+    if (this._users.length <= 0) throw new MemNotFound();
 
     const existingUser: User | undefined = this._users.find((exist: User) => exist.id == userId);
 
@@ -70,9 +67,9 @@ console.log(this._users);
   }
 
   public updateUser(user: UpdateBaseUser, id: string): User | undefined {
-    if (!user) throw new MemInvalidArgs();
+    if (!user || !id || id.length <= 0) throw new MemInvalidArgs();
 
-    if (!Memory.#mem || !this._users) throw new MemNotFound();
+    if (this._users.length <= 0) throw new MemNotFound();
 
     const existingUser: User | undefined = this._users.find((exist: User) => exist.id == id);
 
@@ -93,8 +90,10 @@ console.log(this._users);
 
     return this._users.find((existing: User) => existing.id == id);
   }
-}
 
-//global.memory = global.memory || Memory.instance;
+  public clear(): void {
+    this._users = [];
+  }
+}
 
 export const memoryInstance: Memory = Memory.instance;

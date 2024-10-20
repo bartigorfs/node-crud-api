@@ -55,7 +55,6 @@ export const handlePostRequest = async (req: IncomingMessage, res: ServerRespons
 
         return sendRes(StatusCode.Created, res, {user});
       } catch (e: any) {
-        console.log(e);
         return CatchMemErrors(e?.name, res, e?.message);
       }
     }

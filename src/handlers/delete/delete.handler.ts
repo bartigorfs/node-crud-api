@@ -4,9 +4,9 @@ import {sendNotFound, sendRes} from "@/services/base/base.service";
 import {CatchMemErrors} from "@/models/memory.model";
 import {memoryInstance} from "@/services/memory/memory.service";
 
-export const handleDeleteRequest = (req: IncomingMessage, res: ServerResponse<IncomingMessage> & {
+export const handleDeleteRequest = (req: IncomingMessage, res: ServerResponse & {
   req: IncomingMessage;
-}) => {
+}): void => {
   const urlParts: string[] | undefined = req.url?.split('/').filter(part => part);
   const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null;
 
