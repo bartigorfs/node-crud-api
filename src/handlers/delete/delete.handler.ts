@@ -1,9 +1,7 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {StatusCode, UUIDV4_REGEXP} from "@/models/server.models";
 import {sendNotFound, sendRes} from "@/services/base.service";
-import {deleteUser} from "@/services/memory.service";
 import {CatchMemErrors} from "@/models/memory.model";
-
 
 export const handleDeleteRequest = (req: IncomingMessage, res: ServerResponse<IncomingMessage> & {
   req: IncomingMessage;
@@ -21,7 +19,7 @@ export const handleDeleteRequest = (req: IncomingMessage, res: ServerResponse<In
         }
 
         try {
-          const result: boolean = deleteUser(param);
+          const result: boolean = global.memory.deleteUser(param);
 
           if (result) {
             return sendRes(StatusCode.NoContent, res);

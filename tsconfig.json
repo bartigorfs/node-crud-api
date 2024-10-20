@@ -35,12 +35,19 @@
       "@/*": ["src/*"],
       "@handlers": ["src/handlers/*"],
       "@services": ["src/services/*"],
-      "@models": ["src/models/*"],
-    }
+      "@models": ["src/models/*"]
+    },
+    "plugins": [
+      {
+        "ts-node": {
+          "require": ["tsconfig-paths/register"]
+        }
+      }
+    ]
   },
   "exclude": [
     "dist",
     "node_modules"
   ],
-  "include": ["src"]
+  "include": ["src"],
 }

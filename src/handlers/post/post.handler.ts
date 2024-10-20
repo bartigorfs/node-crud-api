@@ -3,7 +3,6 @@ import {ServerResponse} from "http";
 import {InvalidParamsResponse, StatusCode} from "@/models/server.models";
 import {getRequestBody, sendNotFound, sendRes} from "@/services/base.service";
 import {BaseUser, User} from "@/models/user.model";
-import {addUser} from "@/services/memory.service";
 import {CatchMemErrors} from "@/models/memory.model";
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
@@ -51,9 +50,11 @@ export const handlePostRequest = async (req: IncomingMessage, res: ServerRespons
       }
 
       try {
-        const user: User = addUser(requestBody as BaseUser);
+        const user: User = global.memory.addUser(requestBody as BaseUser);
+
         return sendRes(StatusCode.Created, res, {user});
       } catch (e: any) {
+        console.log(e);
         return CatchMemErrors(e?.name, res, e?.message);
       }
     }

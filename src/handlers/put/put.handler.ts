@@ -2,10 +2,7 @@ import {IncomingMessage, ServerResponse} from "http";
 import {InvalidParamsResponse, StatusCode, UUIDV4_REGEXP} from "@/models/server.models";
 import {getRequestBody, sendNotFound, sendRes} from "@/services/base.service";
 import {UpdateBaseUser, User} from "@/models/user.model";
-import {updateUser} from "@/services/memory.service";
 import {CatchMemErrors} from "@/models/memory.model";
-
-
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
   const errors: string[] = [];
@@ -61,7 +58,7 @@ export const handlePutRequest = async (req: IncomingMessage, res: ServerResponse
         }
 
         try {
-          const user: User | undefined = updateUser(requestBody as UpdateBaseUser, param);
+          const user: User | undefined = global.memory.updateUser(requestBody as UpdateBaseUser, param);
           if (user) {
             return sendRes(StatusCode.Created, res, {user});
           } else {

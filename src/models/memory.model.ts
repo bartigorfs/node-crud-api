@@ -16,14 +16,6 @@ export class MemInvalidArgs extends Error {
   }
 }
 
-export class MemAlreadyCreated extends Error {
-  constructor() {
-    super('User already created!');
-    this.name = 'MemAlreadyCreated';
-  }
-}
-
-
 export enum MemErrorStatusCode {
   'MemNotFound' = StatusCode.NotFound,
   'MemInvalidArgs' = StatusCode.BadRequest,
