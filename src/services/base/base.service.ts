@@ -53,3 +53,27 @@ export const getRequestBody = (req: IncomingMessage) => {
     });
   });
 }
+
+export const getRequestBuffer = (req: IncomingMessage): Promise<Buffer | undefined> => {
+  return new Promise((resolve, reject) => {
+    let body: Buffer[] = [];
+
+    req.on('data', (chunk) => {
+      body.push(chunk);
+    });
+
+    req.on('end', () => {
+      try {
+        const completeBody: Buffer = Buffer.concat(body);
+        resolve(completeBody);
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    req.on('error', (err: Error) => {
+      reject(err);
+    });
+  });
+}
+

@@ -48,6 +48,7 @@ export enum MemErrorStatusCode {
 
 export const CatchMemErrors = (name: keyof typeof MemErrorStatusCode, res: ServerResponse, msg?: string) => {
   const message = { message: msg ? msg : 'Internal server error' }
+  console.log(name, MemErrorStatusCode[name]);
   const statusCode: MemErrorStatusCode | StatusCode = MemErrorStatusCode[name] || StatusCode.ServerError
 
   return sendRes(statusCode, res, message)

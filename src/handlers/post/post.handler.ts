@@ -1,64 +1,74 @@
-import {IncomingMessage} from "node:http";
-import {ServerResponse} from "http";
-import {InvalidParamsResponse, StatusCode} from "@/models/server.models";
-import {getRequestBody, sendNotFound, sendRes} from "@/services/base/base.service";
-import {BaseUser, User} from "@/models/user.model";
-import {CatchMemErrors} from "@/models/memory.model";
-import {userMemoryInstance} from "@/services/memory/memory.service";
+import { IncomingMessage } from 'node:http'
+import { ServerResponse } from 'http'
+import { InvalidParamsResponse, StatusCode } from '@/models/server.models'
+import { getRequestBody, sendNotFound, sendRes } from '@/services/base/base.service'
+import { BaseUser, User } from '@/models/user.model'
+import { CatchMemErrors } from '@/models/memory.model'
+import { userMemoryInstance } from '@/services/memory/memory.service'
+import { parentPort } from 'node:worker_threads'
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
-  const errors: string[] = [];
+  const errors: string[] = []
 
   if (!body.username || typeof body.username !== 'string') {
-    errors.push('Username is missing or its not a type of number!');
+    errors.push('Username is missing or its not a type of number!')
   }
 
   if (!body.age || typeof body.age !== 'number') {
-    errors.push('Age parameter is missing or its not a type of number!');
+    errors.push('Age parameter is missing or its not a type of number!')
   }
 
   if (!body.hobbies || !Array.isArray(body.hobbies) || !body.hobbies.every((hobby: any) => typeof hobby === 'string')) {
-    errors.push('Hobbies parameter is missing or its not a type of string array!');
+    errors.push('Hobbies parameter is missing or its not a type of string array!')
   }
 
   return {
     isValid: errors.length <= 0,
-    errors: errors.length > 0 ? errors : undefined
-  };
+    errors: errors.length > 0 ? errors : undefined,
+  }
 }
 
 export const handlePostRequest = async (req: IncomingMessage, res: ServerResponse<IncomingMessage> & {
   req: IncomingMessage;
 }): Promise<void> => {
-  const urlParts: string[] | undefined = req.url?.split('/').filter(part => part);
-  const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null;
+  const urlParts: string[] | undefined = req.url?.split('/').filter(part => part)
+  const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null
 
   switch (endpoint) {
     case 'users': {
 
-      const requestBody = await getRequestBody(req);
+      const requestBody = await getRequestBody(req)
       if (!requestBody) {
-        return sendRes(StatusCode.BadRequest, res, {message: 'Please provide valid request body!'});
+        return sendRes(StatusCode.BadRequest, res, { message: 'Please provide valid request body!' })
       }
 
-      const bodyValidation: InvalidParamsResponse = validateUserBody(requestBody);
+      const bodyValidation: InvalidParamsResponse = validateUserBody(requestBody)
 
       if (!bodyValidation.isValid) {
         return sendRes(StatusCode.BadRequest, res, {
           message: 'Invalid body params',
-          errors: bodyValidation.errors
-        });
+          errors: bodyValidation.errors,
+        })
       }
 
       try {
-        const user: User = userMemoryInstance.addUser(requestBody as BaseUser);
+        const user: User = await new Promise((resolve, reject) => {
+          parentPort?.postMessage({ type: 'addUser', user: requestBody as BaseUser })
 
-        return sendRes(StatusCode.Created, res, {user});
+          parentPort?.once('message', (message) => {
+            if (message.type === 'addUserResponse') {
+              if (message.error) reject(message.error)
+              resolve(message.user)
+            }
+          })
+        })
+
+        return sendRes(StatusCode.Created, res, { user })
       } catch (e: any) {
-        return CatchMemErrors(e?.name, res, e?.message);
+        return CatchMemErrors(e?.name, res, e?.message)
       }
     }
     default:
-      return sendNotFound(res);
+      return sendNotFound(res)
   }
 }

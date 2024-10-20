@@ -1,39 +1,42 @@
-import { parentPort } from 'node:worker_threads';
+import { parentPort } from 'node:worker_threads'
 import { ClientRequest, request } from 'node:http'
 
-parentPort?.on('message', (options) => {
-  const proxyRequest = (options: any) => {
+parentPort?.on('message', ({ options, body }) => {
+  const proxyRequest = (options: any, body: Buffer | string | undefined) => {
     return new Promise((resolve, reject) => {
       const req: ClientRequest = request(options, (res) => {
-        const chunks: Uint8Array[] = [];
-
+        const chunks: Uint8Array[] = []
         res.on('data', (chunk) => {
-          chunks.push(chunk);
-        });
+          chunks.push(chunk)
+        })
 
         res.on('end', () => {
-          const body = Buffer.concat(chunks).toString();
+          const responseBody = Buffer.concat(chunks).toString()
           resolve({
             statusCode: res.statusCode,
             headers: res.headers,
-            body,
-          });
-        });
-      });
+            body: responseBody,
+          })
+        })
+      })
 
       req.on('error', (err) => {
-        reject({ error: err.message });
-      });
+        reject({ error: err.message })
+      })
 
-      req.end();
-    });
-  };
+      if (body && (options.method === 'POST' || options.method === 'PUT')) {
+        req.write(body)
+      }
 
-  proxyRequest(options)
+      req.end()
+    })
+  }
+
+  proxyRequest(options, body)
     .then((response) => {
-      parentPort?.postMessage({ type: 'response', response });
+      parentPort?.postMessage({ type: 'response', response })
     })
     .catch((error) => {
-      parentPort?.postMessage({ type: 'error', error });
-    });
-});
+      parentPort?.postMessage({ type: 'error', error })
+    })
+})

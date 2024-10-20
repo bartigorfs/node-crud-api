@@ -3,14 +3,22 @@ import { User } from '@/models/user.model'
 import { CatchMemErrors } from '@/models/memory.model'
 import { sendNotFound, sendRes } from '@/services/base/base.service'
 import { StatusCode, UUIDV4_REGEXP } from '@/models/server.models'
-import { userMemoryInstance } from '@/services/memory/memory.service'
+import { parentPort } from 'node:worker_threads'
 
-
-export const getAllUsersFromMem = (res: ServerResponse) => {
+export const getAllUsersFromMem = async (res: ServerResponse) => {
   let result: User[] | null = null
 
   try {
-    result = userMemoryInstance.getAllUsers()
+    result = await new Promise((resolve, reject) => {
+      parentPort?.postMessage({ type: 'getAllUsers' })
+
+      parentPort?.once('message', (message) => {
+        if (message.type === 'getAllUsersResponse') {
+          if (message.error) reject(message.error)
+          resolve(message.users)
+        }
+      })
+    })
   } catch (e: any) {
     return CatchMemErrors(e?.name, res, e?.message)
   }
@@ -18,7 +26,7 @@ export const getAllUsersFromMem = (res: ServerResponse) => {
   return sendRes(StatusCode.OK, res, result)
 }
 
-export const getUserFromMem = (userId: string, res: ServerResponse) => {
+export const getUserFromMem = async (userId: string, res: ServerResponse) => {
   let user: User | null = null
 
   try {
@@ -26,7 +34,16 @@ export const getUserFromMem = (userId: string, res: ServerResponse) => {
       return sendRes(StatusCode.BadRequest, res, { message: 'Bad id string' })
     }
 
-    user = userMemoryInstance.getUserById(userId)
+    user = await new Promise((resolve, reject) => {
+      parentPort?.postMessage({ type: 'getUserById', userId })
+
+      parentPort?.once('message', (message) => {
+        if (message.type === 'getUserByIdResponse') {
+          if (message.error) reject(message.error)
+          resolve(message.user)
+        }
+      })
+    })
 
     if (!user) {
       return sendRes(StatusCode.NotFound, res)
@@ -38,7 +55,7 @@ export const getUserFromMem = (userId: string, res: ServerResponse) => {
   }
 }
 
-export const handleGetRequest = (req: IncomingMessage, res: ServerResponse): void => {
+export const handleGetRequest = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
 
   const urlParts: string[] | undefined = req.url?.split('/').filter(part => part)
   const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null
@@ -46,10 +63,10 @@ export const handleGetRequest = (req: IncomingMessage, res: ServerResponse): voi
   switch (endpoint) {
     case 'users': {
       if (urlParts?.length === 2) {
-        getAllUsersFromMem(res)
+        await getAllUsersFromMem(res)
       } else if (urlParts?.length === 3) {
         const param: string | null = urlParts && urlParts.length >= 2 ? urlParts[2] : null
-        getUserFromMem(param as string, res)
+        await getUserFromMem(param as string, res)
       }
       break
     }
