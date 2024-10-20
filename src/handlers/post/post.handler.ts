@@ -29,7 +29,7 @@ const validateUserBody = (body: any): InvalidParamsResponse => {
 
 export const handlePostRequest = async (
   req: IncomingMessage,
-  res: ServerResponse<IncomingMessage> & {
+  res: ServerResponse & {
     req: IncomingMessage
   },
 ): Promise<void> => {

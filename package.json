@@ -21,7 +21,6 @@
     "@jest/types": "^28.0.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^18.0.0",
-    "@types/supertest": "^2.0.12",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",

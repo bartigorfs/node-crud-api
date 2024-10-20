@@ -5,7 +5,7 @@ import { Balancer } from '@/models/balancer.model'
 import { config } from 'dotenv'
 import { messagesHandler } from '@/handlers/messages/messages.handler'
 
-const bootstrap = () => {
+export const bootstrap = (isTest = false) => {
   config()
 
   const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 4000
@@ -19,7 +19,9 @@ const bootstrap = () => {
     if (!node) {
       console.error(`Error starting worker on port ${port}: cannot register node`)
     } else {
-      const worker: Worker = new Worker(path.resolve(__dirname, 'server.js'), {
+      const worker: Worker = new Worker(isTest
+        ? path.resolve(__dirname, '..', 'dist', 'server.js')
+        : path.resolve(__dirname, 'server.js'), {
         workerData: {
           port,
           role: node.role,
