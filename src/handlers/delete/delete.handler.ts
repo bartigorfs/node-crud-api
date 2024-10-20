@@ -1,6 +1,6 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {StatusCode, UUIDV4_REGEXP} from "@/models/server.models";
-import {sendNotFound, sendRes} from "@/services/base.service";
+import {sendNotFound, sendRes} from "@/services/base/base.service";
 import {CatchMemErrors} from "@/models/memory.model";
 
 export const handleDeleteRequest = (req: IncomingMessage, res: ServerResponse<IncomingMessage> & {

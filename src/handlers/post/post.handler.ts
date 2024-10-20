@@ -1,7 +1,7 @@
 import {IncomingMessage} from "node:http";
 import {ServerResponse} from "http";
 import {InvalidParamsResponse, StatusCode} from "@/models/server.models";
-import {getRequestBody, sendNotFound, sendRes} from "@/services/base.service";
+import {getRequestBody, sendNotFound, sendRes} from "@/services/base/base.service";
 import {BaseUser, User} from "@/models/user.model";
 import {CatchMemErrors} from "@/models/memory.model";
 

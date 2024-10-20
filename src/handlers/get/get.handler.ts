@@ -1,7 +1,7 @@
 import {IncomingMessage, ServerResponse} from "http";
 import {User} from "@/models/user.model";
 import {CatchMemErrors} from "@/models/memory.model";
-import {sendNotFound, sendRes} from "@/services/base.service";
+import {sendNotFound, sendRes} from "@/services/base/base.service";
 import {StatusCode, UUIDV4_REGEXP} from "@/models/server.models";
 
 

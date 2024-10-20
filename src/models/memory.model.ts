@@ -1,5 +1,5 @@
 import {StatusCode} from "@/models/server.models";
-import {sendRes} from "@/services/base.service";
+import {sendRes} from "@/services/base/base.service";
 import {ServerResponse} from "http";
 
 export class MemNotFound extends Error {

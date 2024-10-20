@@ -1,7 +1,5 @@
 import 'dotenv/config'
 
-const isCI = process.env.CI === 'true'
-
 export default {
   verbose: true,
   collectCoverage: false,
@@ -13,7 +11,7 @@ export default {
   extensionsToTreatAsEsm: ['.ts'],
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
   moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^@/(.*)$': '<rootDir>/src/$1',
   },
   globals: {
     'ts-jest': {
@@ -24,5 +22,5 @@ export default {
   collectCoverageFrom: ['<rootDir>/src/*.ts'],
   coveragePathIgnorePatterns: ['<rootDir>/dist/', '/node_modules/', '<rootDir>/scripts', '<rootDir>/tools'],
   coverageProvider: 'v8',
-  coverageReporters: isCI ? ['json'] : ['text'],
+  coverageReporters: ['text'],
 }

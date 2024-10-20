@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "outDir": "./dist/out-tsc",
+    "types": ["jest", "node"],
+    "paths": {
+      "@/*": ["src/*"],
+      "@handlers": ["src/handlers/*"],
+      "@services": ["src/services/*"],
+      "@models": ["src/models/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
