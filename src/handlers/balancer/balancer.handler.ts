@@ -1,37 +1,37 @@
-import { ClientRequest, IncomingMessage, request } from 'node:http'
+import { IncomingMessage } from 'node:http'
 import { ServerResponse } from 'http'
 import { parentPort } from 'node:worker_threads'
+import { UpdateNodeConn } from '@/models/balancer.model'
+import { Worker } from 'worker_threads';
+import path from 'path'
 
 async function getTargetNode(): Promise<number | undefined> {
   return new Promise((resolve) => {
-    parentPort?.postMessage({ type: 'getNodes' });
+    parentPort?.postMessage({ type: 'getNodes' })
 
     parentPort?.once('message', (message) => {
       if (message.type === 'nodesResponse') {
-        const nodes = message.nodes;
-        resolve(nodes[0]?.id);
+        const nodes = message.nodes
+        console.log(nodes);
+        resolve(nodes[0]?.id)
       }
-    });
-  });
+    })
+  })
 }
 
-async function getTargetNode(): Promise<number | undefined> {
+async function updateNodeConn(port: number, updType: UpdateNodeConn): Promise<void> {
   return new Promise((resolve) => {
-    parentPort?.postMessage({ type: 'getNodes' });
-
-    parentPort?.once('message', (message) => {
-      if (message.type === 'nodesResponse') {
-        const nodes = message.nodes;
-        resolve(nodes[0]?.id);
-      }
-    });
-  });
+    parentPort?.postMessage({ type: 'updateNodeConn', data: { port, updType } })
+    resolve()
+  })
 }
 
 export const balancerHandler = async (req: IncomingMessage, res: ServerResponse) => {
   const targetPort: number | undefined = await getTargetNode()
 
-  console.log(targetPort);
+  console.log(`Balancer routed request to ${targetPort}`)
+
+  await updateNodeConn(targetPort!, 'inc')
 
   const options = {
     hostname: 'localhost',
@@ -41,20 +41,29 @@ export const balancerHandler = async (req: IncomingMessage, res: ServerResponse)
     headers: req.headers,
   }
 
-  const proxy: ClientRequest = request(options, (targetRes) => {
-    res.writeHead(targetRes.statusCode || 500, targetRes.headers)
-    targetRes.pipe(res, {
-      end: true,
-    })
-  })
+  const proxyWorker: Worker = new Worker(path.resolve(__dirname, 'proxyWorker.js'))
 
-  req.pipe(proxy, {
-    end: true,
-  })
+  proxyWorker.postMessage(options);
 
-  proxy.on('error', (err) => {
-    console.error(`Error with request to ${targetPort}:`, err)
-    res.writeHead(502)
-    res.end('Bad Gateway')
-  })
-}
+  proxyWorker.on('message', (message) => {
+    if (message.type === 'response') {
+      const { statusCode, headers, body } = message.response;
+      res.writeHead(statusCode || 500, headers);
+      res.end(body);
+      updateNodeConn(targetPort!, 'dec').catch(console.error);
+    } else if (message.type === 'error') {
+      console.error(`Error with request to ${targetPort}:`, message.error);
+      res.writeHead(502);
+      res.end('Bad Gateway');
+      updateNodeConn(targetPort!, 'dec').catch(console.error);
+    }
+  });
+
+  proxyWorker.on('error', (error) => {
+    console.error(`Worker error:`, error);
+  });
+
+  proxyWorker.on('exit', (code) => {
+    console.log(`Worker exited with code ${code}`);
+  });
+};

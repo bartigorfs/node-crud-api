@@ -108,7 +108,7 @@ export class Memory implements IUserStorage, IBalancerDataStorage {
       .filter((balancer: Balancer) => balancer.role !== 'gateway')
   }
 
-  public updateNodeConn(id: number, type: UpdateNodeConn): Balancer[] {
+  public updateNodeConn(id: number, type: UpdateNodeConn): void {
     if (!id) throw new MemInvalidArgs()
 
     this._balancerNodes = this._balancerNodes.map((balancer: Balancer) => {
@@ -116,17 +116,15 @@ export class Memory implements IUserStorage, IBalancerDataStorage {
         return {
           ...balancer,
           connections: type === 'inc'
-            ? balancer.connections++
+            ? balancer.connections + 1
             : balancer.connections === 0
               ? 0
-              : balancer.connections--,
+              : balancer.connections - 1,
         }
       } else {
         return balancer
       }
     })
-
-    return this.getNodesASC()
   }
 }
 

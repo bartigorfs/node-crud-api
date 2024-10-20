@@ -1,59 +1,59 @@
-import {IncomingMessage, ServerResponse} from "http";
-import {User} from "@/models/user.model";
-import {CatchMemErrors} from "@/models/memory.model";
-import {sendNotFound, sendRes} from "@/services/base/base.service";
-import {StatusCode, UUIDV4_REGEXP} from "@/models/server.models";
-import {userMemoryInstance} from "@/services/memory/memory.service";
+import { IncomingMessage, ServerResponse } from 'http'
+import { User } from '@/models/user.model'
+import { CatchMemErrors } from '@/models/memory.model'
+import { sendNotFound, sendRes } from '@/services/base/base.service'
+import { StatusCode, UUIDV4_REGEXP } from '@/models/server.models'
+import { userMemoryInstance } from '@/services/memory/memory.service'
 
 
 export const getAllUsersFromMem = (res: ServerResponse) => {
-  let result: User[] | null = null;
+  let result: User[] | null = null
 
   try {
-    result = userMemoryInstance.getAllUsers();
+    result = userMemoryInstance.getAllUsers()
   } catch (e: any) {
-    return CatchMemErrors(e?.name, res, e?.message);
+    return CatchMemErrors(e?.name, res, e?.message)
   }
 
-  return sendRes(StatusCode.OK, res, result);
+  return sendRes(StatusCode.OK, res, result)
 }
 
 export const getUserFromMem = (userId: string, res: ServerResponse) => {
-  let user: User | null = null;
+  let user: User | null = null
 
   try {
     if (!userId || !UUIDV4_REGEXP.test(userId)) {
-      return sendRes(StatusCode.BadRequest, res, {message: 'Bad id string'});
+      return sendRes(StatusCode.BadRequest, res, { message: 'Bad id string' })
     }
 
-    user = userMemoryInstance.getUserById(userId);
+    user = userMemoryInstance.getUserById(userId)
 
     if (!user) {
-      return sendRes(StatusCode.NotFound, res);
+      return sendRes(StatusCode.NotFound, res)
     }
 
-    return sendRes(StatusCode.OK, res, {user});
+    return sendRes(StatusCode.OK, res, { user })
   } catch (e: any) {
-    return CatchMemErrors(e?.name, res, e?.message);
+    return CatchMemErrors(e?.name, res, e?.message)
   }
 }
 
 export const handleGetRequest = (req: IncomingMessage, res: ServerResponse): void => {
 
-  const urlParts: string[] | undefined = req.url?.split('/').filter(part => part);
-  const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null;
+  const urlParts: string[] | undefined = req.url?.split('/').filter(part => part)
+  const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null
 
   switch (endpoint) {
     case 'users': {
       if (urlParts?.length === 2) {
-        getAllUsersFromMem(res);
+        getAllUsersFromMem(res)
       } else if (urlParts?.length === 3) {
-        const param: string | null = urlParts && urlParts.length >= 2 ? urlParts[2] : null;
-        getUserFromMem(param as string, res);
+        const param: string | null = urlParts && urlParts.length >= 2 ? urlParts[2] : null
+        getUserFromMem(param as string, res)
       }
-      break;
+      break
     }
     default:
-      return sendNotFound(res);
+      return sendNotFound(res)
   }
 }

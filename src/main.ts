@@ -11,31 +11,41 @@ const bootstrap = () => {
   const BALANCER_NODES: number = process.env.BALANCER_NODES ? parseInt(process.env.BALANCER_NODES) : 1;
 
   const LB_NODES: number[] = Array.from({ length: BALANCER_NODES }, (_, i: number) => i + PORT);
-console.log(LB_NODES);
+
   LB_NODES.forEach((port: number): void => {
     const node: Balancer | undefined = balancerMemoryInstance.registerNode(port);
-console.log(node);
+
     if (!node) {
       console.error(`Error starting worker on port ${port}: cannot register node`);
     } else {
       const worker: Worker = new Worker(path.resolve(__dirname, 'server.js'), { workerData: { port, role: node.role } });
 
       worker.on('message', (message) => {
-        if (message.type === 'getNodes') {
-          const nodes = balancerMemoryInstance.getNodesASC();
-          worker.postMessage({ type: 'nodesResponse', nodes });
+        switch (message.type) {
+          case 'getNodes' : {
+            const nodes: Balancer[] = balancerMemoryInstance.getNodesASC();
+            worker.postMessage({ type: 'nodesResponse', nodes });
+            break;
+          }
+
+          case 'updateNodeConn': {
+            balancerMemoryInstance.updateNodeConn(message.data.port, message.data.updType)
+            break;
+          }
         }
       });
 
-      worker.on('error', (error) => {
+      worker.on('error', (error: Error) => {
         console.error(`Error starting worker on port ${port}:`, error);
       });
 
-      worker.on('exit', (code) => {
+      worker.on('exit', (code: number) => {
         console.log(`Worker on port ${port} exited with code ${code}`);
       });
     }
   });
+
+  console.table(balancerMemoryInstance.getNodesASC());
 };
 
 bootstrap();

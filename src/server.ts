@@ -4,10 +4,11 @@ import { ServerResponse } from 'http';
 import { balancerHandler } from '@/handlers/balancer/balancer.handler';
 import { rootHandler } from '@/handlers'
 import { balancerMemoryInstance } from '@/services/memory/memory.service'
+import { Balancer } from '@/models/balancer.model'
 
 const PORT = workerData.port;
 const ROLE = workerData.role;
-console.log(PORT, ROLE);
+
 const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
   ROLE === 'gateway'
     ? balancerHandler(req, res)
@@ -15,16 +16,14 @@ const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
 );
 
 server.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+  console.log(`${ROLE} started on port ${PORT}`);
 });
 
 if (parentPort) {
   parentPort.on('message', (message) => {
     if (message.type === 'getNodes') {
-      const nodes = balancerMemoryInstance.getNodesASC();
+      const nodes: Balancer[] = balancerMemoryInstance.getNodesASC();
       parentPort?.postMessage({ type: 'nodesResponse', nodes });
     }
   });
-} else {
-  throw Error('Патеряйся')
 }

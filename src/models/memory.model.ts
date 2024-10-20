@@ -1,8 +1,8 @@
-import {StatusCode} from "@/models/server.models";
-import {sendRes} from "@/services/base/base.service";
-import {ServerResponse} from "http";
-import {BaseUser, UpdateBaseUser, User} from "@/models/user.model";
-import {Balancer, UpdateNodeConn} from "@/models/balancer.model";
+import { StatusCode } from '@/models/server.models'
+import { sendRes } from '@/services/base/base.service'
+import { ServerResponse } from 'http'
+import { BaseUser, UpdateBaseUser, User } from '@/models/user.model'
+import { Balancer, UpdateNodeConn } from '@/models/balancer.model'
 
 export interface IUserStorage {
   addUser(user: BaseUser): User;
@@ -19,24 +19,24 @@ export interface IUserStorage {
 }
 
 export interface IBalancerDataStorage {
-  registerNode(id: number): Balancer | undefined
+  registerNode(id: number): Balancer | undefined;
 
   getNodesASC(): Balancer[];
 
-  updateNodeConn(id: number, type: UpdateNodeConn): Balancer[]
+  updateNodeConn(id: number, type: UpdateNodeConn): void;
 }
 
 export class MemNotFound extends Error {
   constructor() {
-    super('User or users not found!');
-    this.name = 'MemNotFound';
+    super('User or users not found!')
+    this.name = 'MemNotFound'
   }
 }
 
 export class MemInvalidArgs extends Error {
   constructor() {
-    super('Invalid arguments!');
-    this.name = 'MemInvalidArgs';
+    super('Invalid arguments!')
+    this.name = 'MemInvalidArgs'
   }
 }
 
@@ -47,8 +47,8 @@ export enum MemErrorStatusCode {
 }
 
 export const CatchMemErrors = (name: keyof typeof MemErrorStatusCode, res: ServerResponse, msg?: string) => {
-  const message = {message: msg ? msg : 'Internal server error'};
-  const statusCode: MemErrorStatusCode | StatusCode = MemErrorStatusCode[name] || StatusCode.ServerError;
+  const message = { message: msg ? msg : 'Internal server error' }
+  const statusCode: MemErrorStatusCode | StatusCode = MemErrorStatusCode[name] || StatusCode.ServerError
 
-  return sendRes(statusCode, res, message);
+  return sendRes(statusCode, res, message)
 }

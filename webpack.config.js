@@ -10,6 +10,7 @@ export default {
   entry: {
     main: './src/main.ts',
     server: './src/server.ts',
+    proxyWorker: './src/handlers/balancer/proxy.worker.ts'
   },
   target: 'node22',
   mode: 'production',
