@@ -32,8 +32,6 @@ export const handleDeleteRequest = async (req: IncomingMessage, res: ServerRespo
             })
           })
 
-          console.log(result);
-
           if (result) {
             return sendRes(StatusCode.NoContent, res)
           } else {
