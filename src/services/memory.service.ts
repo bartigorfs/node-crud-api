@@ -21,3 +21,25 @@ export const addUser = (user: BaseUser): User => {
 
   return newUser;
 }
+
+export const getAllUsers = (): User[] => {
+  if (mem && mem.users.length > 0) {
+    return mem.users;
+  } else {
+    throw new MemNotFound();
+  }
+}
+
+export const getUserById = (userId: string): User => {
+  if (mem && mem.users.length > 0) {
+    const result: User | undefined = mem.users.find((user: User) => user.id === userId);
+
+    if (!result) {
+      throw new MemNotFound();
+    }
+
+    return result;
+  } else {
+    throw new MemNotFound();
+  }
+}

@@ -9,6 +9,7 @@ export const __dirname = path.dirname(__filename);
 export default {
   entry: './src/main.ts',
   target: 'node22',
+  mode: 'production',
   externals: [nodeExternals()],
   module: {
     rules: [
