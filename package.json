@@ -1,9 +1,10 @@
 {
   "name": "node-crud-api",
-  "type": "module",
   "author": "bartigorfs",
   "scripts": {
-    "start": "tsc && cross-env  node dist/main.js",
+    "build": "webpack",
+    "run": "webpack && node dist/bundle.js",
+    "start:dev": "ts-node-dev src/main.ts",
     "lint": "eslint --ext .ts .",
     "format": "prettier \"./**\" --write --ignore-unknown",
     "format:check": "prettier \"./**\" --ignore-unknown --check",
@@ -12,7 +13,8 @@
   },
   "dependencies": {
     "dotenv": "^16.0.0",
-    "tslib": "^2.3.1"
+    "tslib": "^2.3.1",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^28.0.0",
@@ -20,6 +22,7 @@
     "@types/jest": "^27.4.1",
     "@types/node": "^18.0.0",
     "@types/supertest": "^2.0.12",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.17.0",
     "cross-env": "^7.0.3",
@@ -28,11 +31,13 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-tsdoc": "^0.2.14",
     "jest": "^27.5.1",
+    "node-loader": "^2.0.0",
     "nodemon": "^2.0.15",
     "prettier": "^2.6.1",
     "ts-jest": "^27.1.4",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.7.0",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^4.6.3",
     "webpack": "^5.95.0",
     "webpack-cli": "^5.1.4",
