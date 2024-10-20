@@ -2,7 +2,7 @@ import {v4 as uuidv4} from 'uuid';
 import {BaseUser, UpdateBaseUser, User} from "@/models/user.model";
 import {MemInvalidArgs, MemNotFound} from "@/models/memory.model";
 
-export class Memory {
+class Memory {
   static #mem: Memory;
   private _users: User[] = [];
 
@@ -95,4 +95,6 @@ console.log(this._users);
   }
 }
 
-global.memory = global.memory || Memory.instance;
+//global.memory = global.memory || Memory.instance;
+
+export const memoryInstance: Memory = Memory.instance;

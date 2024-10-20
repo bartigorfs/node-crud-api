@@ -3,13 +3,14 @@ import {User} from "@/models/user.model";
 import {CatchMemErrors} from "@/models/memory.model";
 import {sendNotFound, sendRes} from "@/services/base/base.service";
 import {StatusCode, UUIDV4_REGEXP} from "@/models/server.models";
+import {memoryInstance} from "@/services/memory/memory.service";
 
 
 export const getAllUsersFromMem = (res: ServerResponse) => {
   let result: User[] | null = null;
 
   try {
-    result = global.memory.getAllUsers();
+    result = memoryInstance.getAllUsers();
   } catch (e: any) {
     return CatchMemErrors(e?.name, res, e?.message);
   }
@@ -25,7 +26,7 @@ export const getUserFromMem = (userId: string, res: ServerResponse) => {
       return sendRes(StatusCode.BadRequest, res, {message: 'Bad id string'});
     }
 
-    user = global.memory.getUserById(userId);
+    user = memoryInstance.getUserById(userId);
 
     if (!user) {
       return sendRes(StatusCode.NotFound, res);
