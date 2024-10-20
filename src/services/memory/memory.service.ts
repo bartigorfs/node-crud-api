@@ -1,10 +1,12 @@
 import {v4 as uuidv4} from 'uuid';
 import {BaseUser, UpdateBaseUser, User} from "@/models/user.model";
-import {MemInvalidArgs, MemNotFound} from "@/models/memory.model";
+import {IBalancerDataStorage, IUserStorage, MemInvalidArgs, MemNotFound} from "@/models/memory.model";
+import {Balancer, UpdateNodeConn} from "@/models/balancer.model";
 
-export class Memory {
+export class Memory implements IUserStorage, IBalancerDataStorage {
   static #mem: Memory;
   private _users: User[] = [];
+  private _balancerNodes: Balancer[] = [];
 
   private constructor() {
   }
@@ -94,6 +96,37 @@ export class Memory {
   public clear(): void {
     this._users = [];
   }
+
+  public registerNode(id: number): void {
+    if (!id) throw new MemInvalidArgs();
+    this._balancerNodes.push({id, connections: 0});
+  }
+
+  public getNodesASC(): Balancer[] {
+    return this._balancerNodes.sort((a: Balancer, b: Balancer) => a.connections - b.connections)
+  }
+
+  public updateNodeConn(id: number, type: UpdateNodeConn): Balancer[] {
+    if (!id) throw new MemInvalidArgs();
+
+    this._balancerNodes = this._balancerNodes.map((balancer: Balancer) => {
+      if (balancer.id === id) {
+        return {
+          ...balancer,
+          connections: type === 'inc'
+            ? balancer.connections++
+            : balancer.connections === 0
+              ? 0
+              : balancer.connections--
+        };
+      } else {
+        return balancer;
+      }
+    });
+
+    return this.getNodesASC();
+  }
 }
 
-export const memoryInstance: Memory = Memory.instance;
+export const userMemoryInstance: IUserStorage = Memory.instance;
+export const balancerMemoryInstance: IBalancerDataStorage = Memory.instance;

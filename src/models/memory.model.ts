@@ -1,6 +1,30 @@
 import {StatusCode} from "@/models/server.models";
 import {sendRes} from "@/services/base/base.service";
 import {ServerResponse} from "http";
+import {BaseUser, UpdateBaseUser, User} from "@/models/user.model";
+import {Balancer, UpdateNodeConn} from "@/models/balancer.model";
+
+export interface IUserStorage {
+  addUser(user: BaseUser): User;
+
+  getAllUsers(): User[];
+
+  getUserById(userId: string): User;
+
+  deleteUser(userId: string): boolean;
+
+  updateUser(user: UpdateBaseUser, id: string): User | undefined;
+
+  clear(): void;
+}
+
+export interface IBalancerDataStorage {
+  registerNode(id: number): void;
+
+  getNodesASC(): Balancer[];
+
+  updateNodeConn(id: number, type: UpdateNodeConn): Balancer[]
+}
 
 export class MemNotFound extends Error {
   constructor() {

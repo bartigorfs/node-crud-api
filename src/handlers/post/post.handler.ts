@@ -4,7 +4,7 @@ import {InvalidParamsResponse, StatusCode} from "@/models/server.models";
 import {getRequestBody, sendNotFound, sendRes} from "@/services/base/base.service";
 import {BaseUser, User} from "@/models/user.model";
 import {CatchMemErrors} from "@/models/memory.model";
-import {memoryInstance} from "@/services/memory/memory.service";
+import {userMemoryInstance} from "@/services/memory/memory.service";
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
   const errors: string[] = [];
@@ -51,7 +51,7 @@ export const handlePostRequest = async (req: IncomingMessage, res: ServerRespons
       }
 
       try {
-        const user: User = memoryInstance.addUser(requestBody as BaseUser);
+        const user: User = userMemoryInstance.addUser(requestBody as BaseUser);
 
         return sendRes(StatusCode.Created, res, {user});
       } catch (e: any) {
