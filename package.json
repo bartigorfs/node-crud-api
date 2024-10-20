@@ -3,8 +3,8 @@
   "author": "bartigorfs",
   "scripts": {
     "build": "webpack",
-    "run": "webpack && node dist/bundle.js",
     "start:dev": "ts-node-dev src/main.ts",
+    "start:prod": "webpack && node dist/bundle.js",
     "lint": "eslint --ext .ts .",
     "format": "prettier \"./**\" --write --ignore-unknown",
     "format:check": "prettier \"./**\" --ignore-unknown --check",

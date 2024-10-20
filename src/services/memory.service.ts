@@ -1,6 +1,6 @@
 
 import {v4 as uuidv4} from 'uuid';
-import {BaseUser, User, Users} from "@/models/user.model";
+import {BaseUser, UpdateBaseUser, User, Users} from "@/models/user.model";
 import {MemInvalidArgs, MemNotFound} from "@/models/memory.model";
 
 let mem: Users = {
@@ -42,4 +42,45 @@ export const getUserById = (userId: string): User => {
   } else {
     throw new MemNotFound();
   }
+}
+
+export const deleteUser = (userId: string) => {
+  if (!userId) throw new MemInvalidArgs();
+
+  if (!mem || !mem.users) throw new MemNotFound();
+
+  const existingUser: User | undefined = mem.users.find((exist: User) => exist.id == userId);
+
+  if (!existingUser) {
+    throw new MemNotFound();
+  }
+
+  mem.users = mem.users.filter((existing: User): boolean => existing.id !== userId);
+
+  return true;
+}
+
+export const updateUser = (user: UpdateBaseUser, id: string): User | undefined => {
+  if (!user) throw new MemInvalidArgs();
+
+  if (!mem || !mem.users) throw new MemNotFound();
+
+  const existingUser: User | undefined = mem.users.find((exist: User) => exist.id == id);
+
+  if (!existingUser) {
+    throw new MemNotFound();
+  }
+
+  mem.users = mem.users.map((existing: User) => {
+    if (existing.id === id) {
+      return {
+        ...existing,
+        ...user
+      };
+    } else {
+      return existing;
+    }
+  });
+
+  return mem.users.find((existing: User) => existing.id == id);
 }
