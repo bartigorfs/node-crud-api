@@ -4,7 +4,6 @@ import { InvalidParamsResponse, StatusCode } from '@/models/server.models'
 import { getRequestBody, sendNotFound, sendRes } from '@/services/base/base.service'
 import { BaseUser, User } from '@/models/user.model'
 import { CatchMemErrors } from '@/models/memory.model'
-import { userMemoryInstance } from '@/services/memory/memory.service'
 import { parentPort } from 'node:worker_threads'
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
@@ -28,15 +27,17 @@ const validateUserBody = (body: any): InvalidParamsResponse => {
   }
 }
 
-export const handlePostRequest = async (req: IncomingMessage, res: ServerResponse<IncomingMessage> & {
-  req: IncomingMessage;
-}): Promise<void> => {
+export const handlePostRequest = async (
+  req: IncomingMessage,
+  res: ServerResponse<IncomingMessage> & {
+    req: IncomingMessage
+  },
+): Promise<void> => {
   const urlParts: string[] | undefined = req.url?.split('/').filter(part => part)
   const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null
 
   switch (endpoint) {
     case 'users': {
-
       const requestBody = await getRequestBody(req)
       if (!requestBody) {
         return sendRes(StatusCode.BadRequest, res, { message: 'Please provide valid request body!' })
@@ -55,7 +56,7 @@ export const handlePostRequest = async (req: IncomingMessage, res: ServerRespons
         const user: User = await new Promise((resolve, reject) => {
           parentPort?.postMessage({ type: 'addUser', user: requestBody as BaseUser })
 
-          parentPort?.once('message', (message) => {
+          parentPort?.once('message', message => {
             if (message.type === 'addUserResponse') {
               if (message.error) reject(message.error)
               resolve(message.user)

@@ -7,10 +7,10 @@ import path from 'path'
 import { getRequestBuffer } from '@/services/base/base.service'
 
 async function getTargetNode(): Promise<number | undefined> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     parentPort?.postMessage({ type: 'getNodes' })
 
-    parentPort?.once('message', (message) => {
+    parentPort?.once('message', message => {
       if (message.type === 'nodesResponse') {
         const nodes = message.nodes
         console.log(nodes)
@@ -21,7 +21,7 @@ async function getTargetNode(): Promise<number | undefined> {
 }
 
 async function updateNodeConn(port: number, updType: UpdateNodeConn): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     parentPort?.postMessage({ type: 'updateNodeConn', data: { port, updType } })
     resolve()
   })
@@ -48,7 +48,7 @@ export const balancerHandler = async (req: IncomingMessage, res: ServerResponse)
 
   proxyWorker.postMessage({ options, body })
 
-  proxyWorker.on('message', (message) => {
+  proxyWorker.on('message', message => {
     if (message.type === 'response') {
       const { statusCode, headers, body } = message.response
       res.writeHead(statusCode || 500, headers)
@@ -62,11 +62,11 @@ export const balancerHandler = async (req: IncomingMessage, res: ServerResponse)
     }
   })
 
-  proxyWorker.on('error', (error) => {
+  proxyWorker.on('error', error => {
     console.error(`Worker error:`, error)
   })
 
-  proxyWorker.on('exit', (code) => {
+  proxyWorker.on('exit', code => {
     console.log(`Worker exited with code ${code}`)
   })
 }

@@ -5,25 +5,25 @@ import { BaseUser, UpdateBaseUser, User } from '@/models/user.model'
 import { Balancer, UpdateNodeConn } from '@/models/balancer.model'
 
 export interface IUserStorage {
-  addUser(user: BaseUser): User;
+  addUser(user: BaseUser): User
 
-  getAllUsers(): User[];
+  getAllUsers(): User[]
 
-  getUserById(userId: string): User;
+  getUserById(userId: string): User
 
-  deleteUser(userId: string): boolean;
+  deleteUser(userId: string): boolean
 
-  updateUser(user: UpdateBaseUser, id: string): User | undefined;
+  updateUser(user: UpdateBaseUser, id: string): User | undefined
 
-  clear(): void;
+  clear(): void
 }
 
 export interface IBalancerDataStorage {
-  registerNode(id: number): Balancer | undefined;
+  registerNode(id: number): Balancer | undefined
 
-  getNodesASC(): Balancer[];
+  getNodesASC(): Balancer[]
 
-  updateNodeConn(id: number, type: UpdateNodeConn): void;
+  updateNodeConn(id: number, type: UpdateNodeConn): void
 }
 
 export class MemNotFound extends Error {

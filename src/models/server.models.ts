@@ -3,8 +3,8 @@ export enum ContentTypes {
 }
 
 export interface SetHeaderOptions {
-  name: string;
-  type: string | ContentTypes;
+  name: string
+  type: string | ContentTypes
 }
 
 export enum HTTPMethods {
@@ -20,12 +20,12 @@ export enum StatusCode {
   OK = 200,
   Created = 201,
   ServerError = 500,
-  NoContent= 204,
+  NoContent = 204,
 }
 
 export interface InvalidParamsResponse {
-  isValid: boolean,
-  errors?: string[],
+  isValid: boolean
+  errors?: string[]
 }
 
-export const UUIDV4_REGEXP: RegExp = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i;
+export const UUIDV4_REGEXP: RegExp = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i

@@ -4,9 +4,9 @@ import { ClientRequest, request } from 'node:http'
 parentPort?.on('message', ({ options, body }) => {
   const proxyRequest = (options: any, body: Buffer | string | undefined) => {
     return new Promise((resolve, reject) => {
-      const req: ClientRequest = request(options, (res) => {
+      const req: ClientRequest = request(options, res => {
         const chunks: Uint8Array[] = []
-        res.on('data', (chunk) => {
+        res.on('data', chunk => {
           chunks.push(chunk)
         })
 
@@ -20,7 +20,7 @@ parentPort?.on('message', ({ options, body }) => {
         })
       })
 
-      req.on('error', (err) => {
+      req.on('error', err => {
         reject({ error: err.message })
       })
 
@@ -33,10 +33,10 @@ parentPort?.on('message', ({ options, body }) => {
   }
 
   proxyRequest(options, body)
-    .then((response) => {
+    .then(response => {
       parentPort?.postMessage({ type: 'response', response })
     })
-    .catch((error) => {
+    .catch(error => {
       parentPort?.postMessage({ type: 'error', error })
     })
 })

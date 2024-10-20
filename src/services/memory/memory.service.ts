@@ -8,8 +8,7 @@ export class Memory implements IUserStorage, IBalancerDataStorage {
   private _users: User[] = []
   private _balancerNodes: Balancer[] = []
 
-  private constructor() {
-  }
+  private constructor() {}
 
   public static get instance(): Memory {
     if (!Memory.#mem) {
@@ -32,8 +31,7 @@ export class Memory implements IUserStorage, IBalancerDataStorage {
   }
 
   public getAllUsers(): User[] {
-    if (!this._users || this._users.length <= 0)
-      throw new MemNotFound()
+    if (!this._users || this._users.length <= 0) throw new MemNotFound()
 
     return this._users
   }
@@ -104,7 +102,8 @@ export class Memory implements IUserStorage, IBalancerDataStorage {
   }
 
   public getNodesASC(): Balancer[] {
-    return this._balancerNodes.sort((a: Balancer, b: Balancer) => a.connections - b.connections)
+    return this._balancerNodes
+      .sort((a: Balancer, b: Balancer) => a.connections - b.connections)
       .filter((balancer: Balancer) => balancer.role !== 'gateway')
   }
 
@@ -115,11 +114,8 @@ export class Memory implements IUserStorage, IBalancerDataStorage {
       if (balancer.id === id) {
         return {
           ...balancer,
-          connections: type === 'inc'
-            ? balancer.connections + 1
-            : balancer.connections === 0
-              ? 0
-              : balancer.connections - 1,
+          connections:
+            type === 'inc' ? balancer.connections + 1 : balancer.connections === 0 ? 0 : balancer.connections - 1,
         }
       } else {
         return balancer

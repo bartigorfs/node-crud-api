@@ -1,79 +1,81 @@
-import {ServerResponse} from "http";
-import {IncomingMessage} from "node:http";
-import {ContentTypes, SetHeaderOptions, StatusCode} from "@/models/server.models";
+import { ServerResponse } from 'http'
+import { IncomingMessage } from 'node:http'
+import { ContentTypes, SetHeaderOptions, StatusCode } from '@/models/server.models'
 
-export const sendNotFound = (res: ServerResponse<IncomingMessage> & {
-  req: IncomingMessage;
-}): void => {
-  res.statusCode = StatusCode.NotFound;
+export const sendNotFound = (
+  res: ServerResponse<IncomingMessage> & {
+    req: IncomingMessage
+  },
+): void => {
+  res.statusCode = StatusCode.NotFound
   res.setHeader('Content-Type', ContentTypes.JSON)
-  res.write(
-    JSON.stringify({message: 'Not found'})
-  )
-  res.end();
+  res.write(JSON.stringify({ message: 'Not found' }))
+  res.end()
 }
 
-export const sendRes = (statusCode: number | StatusCode, res: ServerResponse, data?: any, contentType?: SetHeaderOptions): void => {
-  res.statusCode = statusCode;
+export const sendRes = (
+  statusCode: number | StatusCode,
+  res: ServerResponse,
+  data?: any,
+  contentType?: SetHeaderOptions,
+): void => {
+  res.statusCode = statusCode
 
   if (contentType) {
-    res.setHeader(contentType.name, contentType.type);
+    res.setHeader(contentType.name, contentType.type)
   } else {
     res.setHeader('Content-Type', ContentTypes.JSON)
   }
 
   if (data) {
-    res.write(
-      JSON.stringify(data)
-    )
+    res.write(JSON.stringify(data))
   }
 
-  res.end();
+  res.end()
 }
 
 export const getRequestBody = (req: IncomingMessage) => {
   return new Promise((resolve, reject) => {
-    let body: string = '';
+    let body: string = ''
 
-    req.on('data', (chunk) => {
-      body += chunk.toString();
-    });
+    req.on('data', chunk => {
+      body += chunk.toString()
+    })
 
     req.on('end', () => {
       try {
-        const parsedBody = body ? JSON.parse(body) : undefined;
-        resolve(parsedBody);
+        const parsedBody = body ? JSON.parse(body) : undefined
+        resolve(parsedBody)
       } catch (error) {
-        resolve(undefined);
+        resolve(undefined)
       }
-    });
+    })
 
-    req.on('error', (err) => {
-      reject(err);
-    });
-  });
+    req.on('error', err => {
+      reject(err)
+    })
+  })
 }
 
 export const getRequestBuffer = (req: IncomingMessage): Promise<Buffer | undefined> => {
   return new Promise((resolve, reject) => {
-    let body: Buffer[] = [];
+    let body: Buffer[] = []
 
-    req.on('data', (chunk) => {
-      body.push(chunk);
-    });
+    req.on('data', chunk => {
+      body.push(chunk)
+    })
 
     req.on('end', () => {
       try {
-        const completeBody: Buffer = Buffer.concat(body);
-        resolve(completeBody);
+        const completeBody: Buffer = Buffer.concat(body)
+        resolve(completeBody)
       } catch (error) {
-        reject(error);
+        reject(error)
       }
-    });
+    })
 
     req.on('error', (err: Error) => {
-      reject(err);
-    });
-  });
+      reject(err)
+    })
+  })
 }
-

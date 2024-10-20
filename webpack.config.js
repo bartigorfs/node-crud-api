@@ -1,16 +1,16 @@
-import nodeExternals from 'webpack-node-externals';
+import nodeExternals from 'webpack-node-externals'
 
-import {fileURLToPath} from "url";
-import path from "node:path";
+import { fileURLToPath } from 'url'
+import path from 'node:path'
 
-export const __filename = fileURLToPath(import.meta.url);
-export const __dirname = path.dirname(__filename);
+export const __filename = fileURLToPath(import.meta.url)
+export const __dirname = path.dirname(__filename)
 
 export default {
   entry: {
     main: './src/main.ts',
     server: './src/server.ts',
-    proxyWorker: './src/handlers/balancer/proxy.worker.ts'
+    proxyWorker: './src/handlers/balancer/proxy.worker.ts',
   },
   target: 'node22',
   mode: 'production',
@@ -21,7 +21,7 @@ export default {
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/,
-      }
+      },
     ],
   },
   resolve: {
@@ -37,4 +37,4 @@ export default {
     filename: '[name].js',
     path: path.resolve('dist'),
   },
-};
+}

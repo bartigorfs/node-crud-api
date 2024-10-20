@@ -26,7 +26,7 @@ const bootstrap = () => {
         },
       })
 
-      worker.on('message', (message) => messagesHandler(message, worker))
+      worker.on('message', message => messagesHandler(message, worker))
 
       worker.on('error', (error: Error) => {
         console.error(`Error starting worker on port ${port}:`, error)

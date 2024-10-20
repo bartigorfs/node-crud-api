@@ -1,9 +1,8 @@
 import { IncomingMessage, ServerResponse } from 'http'
 import { InvalidParamsResponse, StatusCode, UUIDV4_REGEXP } from '@/models/server.models'
 import { getRequestBody, sendNotFound, sendRes } from '@/services/base/base.service'
-import { BaseUser, UpdateBaseUser, User } from '@/models/user.model'
+import { UpdateBaseUser, User } from '@/models/user.model'
 import { CatchMemErrors } from '@/models/memory.model'
-import { userMemoryInstance } from '@/services/memory/memory.service'
 import { parentPort } from 'node:worker_threads'
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
@@ -29,9 +28,12 @@ const validateUserBody = (body: any): InvalidParamsResponse => {
   }
 }
 
-export const handlePutRequest = async (req: IncomingMessage, res: ServerResponse<IncomingMessage> & {
-  req: IncomingMessage;
-}): Promise<void> => {
+export const handlePutRequest = async (
+  req: IncomingMessage,
+  res: ServerResponse<IncomingMessage> & {
+    req: IncomingMessage
+  },
+): Promise<void> => {
   const urlParts: string[] | undefined = req.url?.split('/').filter(part => part)
   const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null
 
@@ -63,7 +65,7 @@ export const handlePutRequest = async (req: IncomingMessage, res: ServerResponse
           const user: User | undefined = await new Promise((resolve, reject) => {
             parentPort?.postMessage({ type: 'updateUserById', user: requestBody as UpdateBaseUser, userId: param })
 
-            parentPort?.once('message', (message) => {
+            parentPort?.once('message', message => {
               if (message.type === 'updateUserByIdResponse') {
                 if (message.error) reject(message.error)
                 resolve(message.user)

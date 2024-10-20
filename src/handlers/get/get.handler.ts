@@ -12,7 +12,7 @@ export const getAllUsersFromMem = async (res: ServerResponse) => {
     result = await new Promise((resolve, reject) => {
       parentPort?.postMessage({ type: 'getAllUsers' })
 
-      parentPort?.once('message', (message) => {
+      parentPort?.once('message', message => {
         if (message.type === 'getAllUsersResponse') {
           if (message.error) reject(message.error)
           resolve(message.users)
@@ -37,7 +37,7 @@ export const getUserFromMem = async (userId: string, res: ServerResponse) => {
     user = await new Promise((resolve, reject) => {
       parentPort?.postMessage({ type: 'getUserById', userId })
 
-      parentPort?.once('message', (message) => {
+      parentPort?.once('message', message => {
         if (message.type === 'getUserByIdResponse') {
           if (message.error) reject(message.error)
           resolve(message.user)
@@ -56,7 +56,6 @@ export const getUserFromMem = async (userId: string, res: ServerResponse) => {
 }
 
 export const handleGetRequest = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
-
   const urlParts: string[] | undefined = req.url?.split('/').filter(part => part)
   const endpoint: string | null = urlParts && urlParts.length > 1 ? urlParts[1] : null
 
