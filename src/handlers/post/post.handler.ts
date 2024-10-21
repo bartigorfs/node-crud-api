@@ -5,6 +5,7 @@ import { getRequestBody, sendNotFound, sendRes } from '@/services/base/base.serv
 import { BaseUser, User } from '@/models/user.model'
 import { CatchMemErrors } from '@/models/memory.model'
 import { parentPort } from 'node:worker_threads'
+import { userMemoryInstance } from '@/services/memory/memory.service'
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
   const errors: string[] = []
@@ -53,16 +54,21 @@ export const handlePostRequest = async (
       }
 
       try {
-        const user: User = await new Promise((resolve, reject) => {
-          parentPort?.postMessage({ type: 'addUser', user: requestBody as BaseUser })
+        let user: User
+        if (parentPort) {
+          user = await new Promise((resolve, reject) => {
+            parentPort?.postMessage({ type: 'addUser', user: requestBody as BaseUser })
 
-          parentPort?.once('message', message => {
-            if (message.type === 'addUserResponse') {
-              if (message.error) reject(message.error)
-              resolve(message.user)
-            }
+            parentPort?.once('message', message => {
+              if (message.type === 'addUserResponse') {
+                if (message.error) reject(message.error)
+                resolve(message.user)
+              }
+            })
           })
-        })
+        } else {
+          user = userMemoryInstance.addUser(requestBody as BaseUser)
+        }
 
         return sendRes(StatusCode.Created, res, { user })
       } catch (e: any) {

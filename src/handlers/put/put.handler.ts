@@ -4,6 +4,7 @@ import { getRequestBody, sendNotFound, sendRes } from '@/services/base/base.serv
 import { UpdateBaseUser, User } from '@/models/user.model'
 import { CatchMemErrors } from '@/models/memory.model'
 import { parentPort } from 'node:worker_threads'
+import { userMemoryInstance } from '@/services/memory/memory.service'
 
 const validateUserBody = (body: any): InvalidParamsResponse => {
   const errors: string[] = []
@@ -62,16 +63,22 @@ export const handlePutRequest = async (
         }
 
         try {
-          const user: User | undefined = await new Promise((resolve, reject) => {
-            parentPort?.postMessage({ type: 'updateUserById', user: requestBody as UpdateBaseUser, userId: param })
+          let user: User | undefined
 
-            parentPort?.once('message', message => {
-              if (message.type === 'updateUserByIdResponse') {
-                if (message.error) reject(message.error)
-                resolve(message.user)
-              }
+          if (parentPort) {
+            user = await new Promise((resolve, reject) => {
+              parentPort?.postMessage({ type: 'updateUserById', user: requestBody as UpdateBaseUser, userId: param })
+
+              parentPort?.once('message', message => {
+                if (message.type === 'updateUserByIdResponse') {
+                  if (message.error) reject(message.error)
+                  resolve(message.user)
+                }
+              })
             })
-          })
+          } else {
+            user = userMemoryInstance.updateUser(requestBody as UpdateBaseUser, param)
+          }
 
           if (user) {
             return sendRes(StatusCode.Created, res, { user })

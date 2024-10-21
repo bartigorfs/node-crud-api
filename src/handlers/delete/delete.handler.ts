@@ -3,6 +3,7 @@ import { StatusCode, UUIDV4_REGEXP } from '@/models/server.models'
 import { sendNotFound, sendRes } from '@/services/base/base.service'
 import { CatchMemErrors } from '@/models/memory.model'
 import { parentPort } from 'node:worker_threads'
+import { userMemoryInstance } from '@/services/memory/memory.service'
 
 export const handleDeleteRequest = async (
   req: IncomingMessage,
@@ -23,16 +24,22 @@ export const handleDeleteRequest = async (
         }
 
         try {
-          const result: boolean = await new Promise((resolve, reject) => {
-            parentPort?.postMessage({ type: 'deleteUserById', userId: param })
+          let result: boolean
 
-            parentPort?.once('message', message => {
-              if (message.type === 'deleteUserByIdResponse') {
-                if (message.error) reject(message.error)
-                resolve(message.result)
-              }
+          if (parentPort) {
+            result = await new Promise((resolve, reject) => {
+              parentPort?.postMessage({ type: 'deleteUserById', userId: param })
+
+              parentPort?.once('message', message => {
+                if (message.type === 'deleteUserByIdResponse') {
+                  if (message.error) reject(message.error)
+                  resolve(message.result)
+                }
+              })
             })
-          })
+          } else {
+            result = userMemoryInstance.deleteUser(param)
+          }
 
           if (result) {
             return sendRes(StatusCode.NoContent, res)

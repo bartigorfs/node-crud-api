@@ -4,12 +4,17 @@ import { balancerMemoryInstance } from '@/services/memory/memory.service'
 import { Balancer } from '@/models/balancer.model'
 import { config } from 'dotenv'
 import { messagesHandler } from '@/handlers/messages/messages.handler'
+import { runServer } from '@/server'
 
-export const bootstrap = (isTest = false) => {
+export const bootstrap = () => {
   config()
 
   const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 4000
   const BALANCER_NODES: number = process.env.BALANCER_NODES ? parseInt(process.env.BALANCER_NODES) : 1
+
+  if (BALANCER_NODES === 1) {
+    return runServer(PORT)
+  }
 
   const LB_NODES: number[] = Array.from({ length: BALANCER_NODES }, (_, i: number) => i + PORT)
 
@@ -19,9 +24,7 @@ export const bootstrap = (isTest = false) => {
     if (!node) {
       console.error(`Error starting worker on port ${port}: cannot register node`)
     } else {
-      const worker: Worker = new Worker(isTest
-        ? path.resolve(__dirname, '..', 'dist', 'server.js')
-        : path.resolve(__dirname, 'server.js'), {
+      const worker: Worker = new Worker(path.resolve(__dirname, 'server.js'), {
         workerData: {
           port,
           role: node.role,
@@ -42,5 +45,3 @@ export const bootstrap = (isTest = false) => {
 
   console.table(balancerMemoryInstance.getNodesASC())
 }
-
-bootstrap()

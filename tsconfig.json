@@ -45,9 +45,17 @@
       }
     ]
   },
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "files": ["src/main.ts"],
   "exclude": [
     "dist",
-    "node_modules"
+    "node_modules",
+    "**/*spec.ts"
   ],
-  "include": ["src"],
+  "include": ["src"]
 }

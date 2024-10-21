@@ -4,21 +4,26 @@ import { CatchMemErrors } from '@/models/memory.model'
 import { sendNotFound, sendRes } from '@/services/base/base.service'
 import { StatusCode, UUIDV4_REGEXP } from '@/models/server.models'
 import { parentPort } from 'node:worker_threads'
+import { userMemoryInstance } from '@/services/memory/memory.service'
 
 export const getAllUsersFromMem = async (res: ServerResponse) => {
   let result: User[] | null = null
 
   try {
-    result = await new Promise((resolve, reject) => {
-      parentPort?.postMessage({ type: 'getAllUsers' })
+    if (parentPort) {
+      result = await new Promise((resolve, reject) => {
+        parentPort?.postMessage({ type: 'getAllUsers' })
 
-      parentPort?.once('message', message => {
-        if (message.type === 'getAllUsersResponse') {
-          if (message.error) reject(message.error)
-          resolve(message.users)
-        }
+        parentPort?.once('message', message => {
+          if (message.type === 'getAllUsersResponse') {
+            if (message.error) reject(message.error)
+            resolve(message.users)
+          }
+        })
       })
-    })
+    } else {
+      result = userMemoryInstance.getAllUsers()
+    }
   } catch (e: any) {
     return CatchMemErrors(e?.name, res, e?.message)
   }
@@ -34,16 +39,20 @@ export const getUserFromMem = async (userId: string, res: ServerResponse) => {
       return sendRes(StatusCode.BadRequest, res, { message: 'Bad id string' })
     }
 
-    user = await new Promise((resolve, reject) => {
-      parentPort?.postMessage({ type: 'getUserById', userId })
+    if (parentPort) {
+      user = await new Promise((resolve, reject) => {
+        parentPort?.postMessage({ type: 'getUserById', userId })
 
-      parentPort?.once('message', message => {
-        if (message.type === 'getUserByIdResponse') {
-          if (message.error) reject(message.error)
-          resolve(message.user)
-        }
+        parentPort?.once('message', message => {
+          if (message.type === 'getUserByIdResponse') {
+            if (message.error) reject(message.error)
+            resolve(message.user)
+          }
+        })
       })
-    })
+    } else {
+      user = userMemoryInstance.getUserById(userId)
+    }
 
     if (!user) {
       return sendRes(StatusCode.NotFound, res)

@@ -4,24 +4,29 @@ import { ServerResponse } from 'http'
 import { balancerHandler } from '@/handlers/balancer/balancer.handler'
 import { rootHandler } from '@/handlers'
 import { balancerMemoryInstance } from '@/services/memory/memory.service'
-import { Balancer } from '@/models/balancer.model'
+import { Balancer, NodeType } from '@/models/balancer.model'
 
-const PORT = workerData.port
-const ROLE = workerData.role
+export const runServer = (mPORT: number = 4000, mROLE: NodeType = 'worker') => {
+  const PORT = workerData?.port || mPORT
+  const ROLE = workerData?.role || mROLE
+  console.log(ROLE)
 
-const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
-  ROLE === 'gateway' ? balancerHandler(req, res) : rootHandler(req, res),
-)
+  const server = createServer(async (req: IncomingMessage, res: ServerResponse) =>
+    ROLE === 'gateway' ? balancerHandler(req, res) : rootHandler(req, res),
+  )
 
-server.listen(PORT, () => {
-  console.log(`${ROLE} started on port ${PORT}`)
-})
-
-if (parentPort) {
-  parentPort.on('message', message => {
-    if (message.type === 'getNodes') {
-      const nodes: Balancer[] = balancerMemoryInstance.getNodesASC()
-      parentPort?.postMessage({ type: 'nodesResponse', nodes })
-    }
+  server.listen(PORT, () => {
+    console.log(`${ROLE} started on port ${PORT}`)
   })
+
+  if (parentPort) {
+    parentPort.on('message', message => {
+      if (message.type === 'getNodes') {
+        const nodes: Balancer[] = balancerMemoryInstance.getNodesASC()
+        parentPort?.postMessage({ type: 'nodesResponse', nodes })
+      }
+    })
+  }
 }
+
+runServer()
